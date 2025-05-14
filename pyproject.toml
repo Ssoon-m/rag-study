@@ -6,7 +6,7 @@ authors = [
     {name = "Ssoon-m",email = "tkksm2@gmail.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 
 dependencies = [
     # 유틸리티 관련 패키지
