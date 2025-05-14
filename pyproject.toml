@@ -9,7 +9,10 @@ readme = "README.md"
 requires-python = ">=3.9"
 
 dependencies = [
-    "python-dotenv (>=1.1.0,<2.0.0)"
+    # 유틸리티 관련 패키지
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    # 언어 및 자연어 처리 관련 패키지
+    "langchain-openai (>=0.3.16,<0.4.0)"
 ]
 
 [tool.poetry]
