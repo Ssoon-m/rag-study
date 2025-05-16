@@ -52,5 +52,25 @@ def output_parser_test():
         print(chunk, end="", flush=True)
 
 
+# 한번에 여러 개의 입력을 처리하는 배치 처리
+def lcel_batch_test():
+    load_dotenv()
+
+    prompt = PromptTemplate.from_template("{topic} 에 대해 설명해주세요.")
+    model = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
+    parser = StrOutputParser()
+
+    chain = prompt | model | parser
+
+    input = [
+        {"topic": "ChatGPT"},
+        {"topic": "Instagram"},
+    ]
+
+    answer = chain.batch(input, config={"max_concurrency": 2})
+
+    print(answer)
+
+
 if __name__ == "__main__":
-    output_parser_test()
+    lcel_batch_test()
