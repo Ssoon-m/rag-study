@@ -2,12 +2,10 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnableParallel
+from langchain_core.runnables import RunnableParallel, RunnablePassthrough
 
 
 def main():
-    load_dotenv()
-
     prompt = PromptTemplate.from_template("{topic} 에 대해 {how} 설명해주세요.")
     model = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
     parser = StrOutputParser()
@@ -22,8 +20,6 @@ def main():
 
 
 def output_parser_test():
-    load_dotenv()
-
     template = """
     당신은 영어를 가르치는 10년차 영어 선생님입니다. 주어진 상황에 맞는 영어 회화를 작성해 주세요.
     양식은 [FORMAT]을 참고하여 작성해 주세요.
@@ -55,8 +51,6 @@ def output_parser_test():
 
 # 한번에 여러 개의 입력을 처리하는 배치 처리
 def lcel_batch_test():
-    load_dotenv()
-
     prompt = PromptTemplate.from_template("{topic} 에 대해 설명해주세요.")
     model = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
     parser = StrOutputParser()
@@ -74,8 +68,6 @@ def lcel_batch_test():
 
 
 def runnable_parrel_test():
-    load_dotenv()
-
     model = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
 
     chain1 = (
@@ -105,8 +97,6 @@ def runnable_parrel_test():
 
 # 배치에서의 병렬처리 테스트
 def runnable_parrel_batch_test():
-    load_dotenv()
-
     model = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
 
     chain1 = (
@@ -132,5 +122,19 @@ def runnable_parrel_batch_test():
     print(answer)
 
 
+def runnable_passthrough_test():
+    model = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
+    chain1 = (
+        {"country": RunnablePassthrough()}
+        | PromptTemplate.from_template("{country} 의 수도는?")
+        | model
+        | StrOutputParser()
+    )
+
+    answer = chain1.invoke("한국")
+    print(answer)
+
+
 if __name__ == "__main__":
-    runnable_parrel_test()
+    load_dotenv()
+    runnable_passthrough_test()
