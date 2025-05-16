@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnableParallel
 
 
 def main():
@@ -72,5 +73,64 @@ def lcel_batch_test():
     print(answer)
 
 
+def runnable_parrel_test():
+    load_dotenv()
+
+    model = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
+
+    chain1 = (
+        PromptTemplate.from_template("{country} 의 수도는 어디야?")
+        | model
+        | StrOutputParser()
+    )
+
+    chain2 = (
+        PromptTemplate.from_template("{country} 의 면적은 얼마야?")
+        | model
+        | StrOutputParser()
+    )
+
+    # 위 2개의 체인을 동시에 생성하는 병렬 실행 체인을 생성합니다.
+    # 첫 번째 체인 답변에 대한걸 capital이라는 키에 넣고, 두 번째 체인 답변에 대한걸 area라는 키에 넣습니다.
+    combined = RunnableParallel(capital=chain1, area=chain2)
+
+    input = {"country": "한국"}
+
+    # 병렬 실행 체인을 실행
+    answer = combined.invoke(input)
+
+    print(answer)
+    # 출력 : {'capital': '한국의 수도는 서울입니다.', 'area': '한국(대한민국)의 면적은 약 100,210 제곱킬로미터입니다.'}
+
+
+# 배치에서의 병렬처리 테스트
+def runnable_parrel_batch_test():
+    load_dotenv()
+
+    model = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
+
+    chain1 = (
+        PromptTemplate.from_template("{country} 의 수도는 어디야?")
+        | model
+        | StrOutputParser()
+    )
+
+    chain1.batch([{"country": "한국"}, {"country": "미국"}])
+
+    chain2 = (
+        PromptTemplate.from_template("{country} 의 면적은 얼마야?")
+        | model
+        | StrOutputParser()
+    )
+
+    chain2.batch([{"country": "한국"}, {"country": "미국"}])
+
+    combined = RunnableParallel(capital=chain1, area=chain2)
+
+    answer = combined.batch([{"country": "한국"}, {"country": "미국"}])
+
+    print(answer)
+
+
 if __name__ == "__main__":
-    lcel_batch_test()
+    runnable_parrel_test()
