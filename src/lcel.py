@@ -2,7 +2,13 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnableParallel, RunnablePassthrough
+from langchain_core.runnables import (
+    RunnableParallel,
+    RunnablePassthrough,
+    RunnableLambda,
+)
+from operator import itemgetter
+from datetime import datetime
 
 
 def main():
@@ -135,6 +141,28 @@ def runnable_passthrough_test():
     print(answer)
 
 
+def runnable_lambda_test():
+    prompt = PromptTemplate.from_template(
+        "{today} 가 생일인 유명인 {n} 명을 나열하세요. 생년월일을 표기해 주세요."
+    )
+    llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0.1)
+
+    chain = (
+        {"today": RunnableLambda(get_today), "n": RunnablePassthrough()}
+        | prompt
+        | llm
+        | StrOutputParser()
+    )
+
+    answer = chain.invoke(3)
+
+    print(answer)
+
+
+def get_today(a):
+    return datetime.now().strftime("%Y-%m-%d")
+
+
 if __name__ == "__main__":
     load_dotenv()
-    runnable_passthrough_test()
+    runnable_lambda_test()
